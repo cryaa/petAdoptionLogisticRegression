@@ -2,6 +2,7 @@
 setwd("~/Fordham/Statistical Programming with R/Final Project")
 base <- read.csv(file = 'shelterdata.csv',sep = ",",header = T,na.strings="")
 
+install.packages('ggthemes', dependencies = TRUE)
 library(dplyr)
 library(ggplot2)
 library(ggthemes)
@@ -145,18 +146,9 @@ df %>% select(OutcomeType,as.factor(dataCol))  %>%
 # No Name Indicator Using Plotting Function
 factorPlot(train,train$AnimalType)
 
-# No Name Indicator Formatted
-train %>% select(OutcomeType,AnimalType,NoNameInd)  %>% 
-  ggplot(aes(x=NoNameInd, fill=OutcomeType)) +
-  facet_grid(. ~ AnimalType) +
-  geom_bar(position = "fill") +
-  labs(x = "Does the pet have a name?", y= "Outcome") + 
-  scale_x_discrete(labels=c("1" = "No", "0" = "No")) +
-  ggtitle("No Name Indicator by Adoption Outcome") +
-  scale_y_continuous(labels = percent) +
-  theme_fivethirtyeight() +
-  scale_fill_manual(values=c("#009e73","#0072b2")) +
-  coord_flip()
+# 
+train %>% select(OutcomeType)  %>% group_by(OutcomeType) %>% summarise(n=n())
+train %>% select(AnimalType)  %>% group_by(AnimalType) %>% summarise(n=n())
 
 # Animal Type Formatted
 train %>% select(OutcomeType,AnimalType)  %>% 
@@ -169,18 +161,43 @@ train %>% select(OutcomeType,AnimalType)  %>%
   scale_fill_manual(values=c("#009e73","#0072b2")) +
   coord_flip()
 
+
+# No Name Indicator Formatted
+train %>% select(OutcomeType,AnimalType,NoNameInd)  %>% 
+  ggplot(aes(x=NoNameInd, fill=OutcomeType)) +
+  facet_grid(. ~ AnimalType) +
+  geom_bar(position = "fill") +
+  labs(x = "Does the pet have a name?", y= "Outcome") + 
+  scale_x_discrete(labels=c("1" = "No", "0" = "Yes")) +
+  ggtitle("No Name Indicator by Adoption Outcome") +
+  scale_y_continuous(labels = percent) +
+  theme_fivethirtyeight() +
+  scale_fill_manual(values=c("#009e73","#0072b2")) +
+  coord_flip()
+
+
+
 # Days Old Binned Formatted
 train2 <- train %>% mutate(daysOldBinned2 = factor(train$daysOldBinned,c("3 Months","6 Months","1 Year","2 Years","5 Years","10 Years","10+ Years")))
 train2 %>% select(OutcomeType,daysOldBinned2,AnimalType)  %>% 
   ggplot(aes(x=daysOldBinned2, fill=OutcomeType)) +
   geom_bar(position = "fill") +
   labs(x = "Days Old", y= "Outcome") + 
-  ggtitle("No Name Indicator by Adoption Outcome") +
+  ggtitle("Days Old by Adoption Outcome") +
   scale_y_continuous(labels = percent) +
   theme_fivethirtyeight() +
   scale_fill_manual(values=c("#009e73","#0072b2")) +
   facet_grid(. ~ AnimalType) +
   coord_flip()
+
+# Days Old formatted Plot
+ggplot(base, aes(OutcomeType, daysOld)) +
+  geom_boxplot() + 
+  ggtitle("Adoption Outcome by Days old") +
+  theme_classic() + 
+  labs(x = "Outcome Type", y="Days Old") +
+  scale_y_continuous(labels = comma) +
+  facet_grid(. ~ AnimalType)
 
 # Pit Indicator Formatted
 train %>% select(OutcomeType,pitIndicator,AnimalType)  %>% 
@@ -194,6 +211,18 @@ train %>% select(OutcomeType,pitIndicator,AnimalType)  %>%
   scale_fill_manual(values=c("#009e73","#0072b2")) +
   facet_grid(. ~ AnimalType) +
   coord_flip()
+
+# Black Color Indicator Formatted
+train %>% select(blackColorInd,OutcomeType,AnimalType)  %>% 
+  ggplot(aes(x=blackColorInd, fill=OutcomeType)) +
+  geom_bar(position = "fill") +
+  labs(x = "Black Color Indicator", y= "Outcome") + 
+  ggtitle("Black Color Indicator by Adoption Outcome") +
+  scale_y_continuous(labels = percent) +
+  theme_fivethirtyeight() +
+  scale_fill_manual(values=c("#009e73","#0072b2")) +
+  facet_grid(. ~ AnimalType) +
+  coord_flip() 
 
 # Sex Formatted
 train %>% select(OutcomeType,sex,AnimalType)  %>% 
@@ -231,28 +260,10 @@ train %>% select(mixedBreed,OutcomeType,AnimalType)  %>%
   facet_grid(. ~ AnimalType) +
   coord_flip() 
 
-# Black Color Indicator Formatted
-train %>% select(blackColorInd,OutcomeType,AnimalType)  %>% 
-  ggplot(aes(x=blackColorInd, fill=OutcomeType)) +
-  geom_bar(position = "fill") +
-  labs(x = "Black Color Indicator", y= "Outcome") + 
-  ggtitle("Black Color Indicator by Adoption Outcome") +
-  scale_y_continuous(labels = percent) +
-  theme_fivethirtyeight() +
-  scale_fill_manual(values=c("#009e73","#0072b2")) +
-  facet_grid(. ~ AnimalType) +
-  coord_flip() 
 
-# Days Old formatted Plot
-ggplot(base, aes(OutcomeType, daysOld)) +
-  geom_boxplot() + 
-  ggtitle("Adoption Outcome by Days old") +
-  theme_classic() + 
-  labs(x = "Outcome Type", y="Days Old") +
-  scale_y_continuous(labels = comma) +
-  facet_grid(. ~ AnimalType)
 
 # Days Old Binned Formatted
+#Season?
 train %>% select(OutcomeType,month,AnimalType)  %>% 
   ggplot(aes(x=month, fill=OutcomeType)) +
   geom_bar(position = "fill") +
@@ -274,8 +285,7 @@ ggplot(train, aes(OutcomeType, as.numeric(hour))) +
   scale_y_continuous(labels = comma) +
   facet_grid(. ~ AnimalType)
 
-# 
-train %>% select(OutcomeType)  %>% group_by(OutcomeType) %>% summarise(n=n())
+
 
 
 #---------------------- Modeling -------------------------#
